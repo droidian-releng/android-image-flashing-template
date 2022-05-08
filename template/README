@@ -1,0 +1,11 @@
+Droidian
+========
+
+This archive contains fastboot-flashable images for Droidian.
+
+To flash a device on Linux and macOS, just run the `./flash_all.sh`
+script. The `fastboot` tool must be installed.
+You might need to run the script as root, depending on your distro and/or
+settings.
+
+Please note that flashing Droidian will erase the existing userdata partition.
