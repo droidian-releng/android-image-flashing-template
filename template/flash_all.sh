@@ -51,7 +51,7 @@ check_device() {
 	for device in $(fastboot devices | awk '{ print $1 }'); do
 		product=$(fastboot -s ${device} getvar product 2>&1 | grep "product:" | awk '{ print tolower($2) }')
 
-		for supported in ${EXTRA_INFO_DEVICE_IDS}; do
+		for supported in ${INFO_VENDOR_MODEL} ${EXTRA_INFO_DEVICE_IDS}; do
 			if [ "${product}" == "$(echo ${supported} | awk '{ print tolower($1) }')" ]; then
 				echo ${device}
 				return 0
