@@ -62,6 +62,20 @@ check_device() {
 	return 1
 }
 
+check_deps() {
+	has_deps=true
+	for cmd in "${@}"; do
+		if ! command -v "$cmd" 2>&1> /dev/null; then
+			warning "The command \"$cmd\" is required but not available"
+			has_deps=false
+		fi
+	done
+	if $has_deps; then
+		info "Dependencies found"
+	else
+		error "Install the required dependencies and then run the script again"
+	fi
+}
 
 flash() {
 	DEVICE="${1}"
@@ -74,7 +88,51 @@ flash() {
 
 	info "Flashing ${IMAGE}"
 	for partition in ${PARTITIONS}; do
-		fastboot -s ${DEVICE} flash ${partition} ${IMAGE}
+		if [ "${partition,,}" == "userdata" ]; then
+			info "Formatting ${partition}"
+			fastboot format "${partition}"
+
+			if [ "${USERDATA_FLASHING_METHOD}" == "telnet" ]; then
+				check_deps ping telnet nc pv
+
+				if [ -f userdata-raw.img ]; then
+					warning "userdata-raw.img exists already, falling back to the existing image"
+				else
+					check_deps simg2img
+					info "Converting sparse userdata.img to a raw image using simg2img..."
+					simg2img "${IMAGE}" userdata-raw.img
+				fi
+
+				info "Flashing ${IMAGE} via telnet"
+				fastboot -s "${DEVICE}" reboot
+				sleep 10
+				telnet_available=false
+				info "Waiting for telnet to become available"
+				for try in 1 2 3 4 5; do
+					if ping -c 3 192.168.2.15 2>&1> /dev/null; then
+						telnet_available=true
+						break
+					else
+						sleep 10
+					fi
+				done
+				if ! $telnet_available; then
+					error "Couldn't connect to device via telnet"
+				fi
+
+				# 6000 seconds is 100 minutes. It takes around 6 minutes to flash userdata.img, so this should be more than enough
+				( (echo "nc -l -p 12345 > /dev/disk/by-partlabel/${partition}" && sleep 6000) | telnet 192.168.2.15 23 ) &
+				sleep 5
+				if pv userdata-raw.img | nc -q 0 192.168.2.15 12345; then
+					info "${IMAGE} flashed successfully via telnet"
+					sleep 5
+				else
+					error "Failed to flash ${IMAGE} via telnet"
+				fi
+			fi
+		else
+			fastboot -s ${DEVICE} flash ${partition} ${IMAGE}
+		fi
 	done
 }
 
@@ -85,6 +143,8 @@ flash_if_exists() {
 }
 
 ########################################################################
+
+check_deps fastboot
 
 for try in 1 2 3 4 5; do
 	info "Waiting for a suitable device"
@@ -128,6 +188,11 @@ else
 	flash ${DEVICE} data/userdata.img userdata
 fi
 
-fastboot -s ${DEVICE} reboot
+if [ "${USERDATA_FLASHING_METHOD}" == "telnet" ]; then
+	( (echo "reboot -f" && sleep 2) | telnet 192.168.2.15 23 ) &
+	sleep 5
+else
+	fastboot -s ${DEVICE} reboot
+fi
 
 info "Flashing completed"
