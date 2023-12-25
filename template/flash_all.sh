@@ -89,9 +89,6 @@ flash() {
 	info "Flashing ${IMAGE}"
 	for partition in ${PARTITIONS}; do
 		if [ "${partition,,}" == "userdata" ]; then
-			info "Formatting ${partition}"
-			fastboot format "${partition}"
-
 			if [ "${USERDATA_FLASHING_METHOD}" == "telnet" ]; then
 				check_deps ping telnet nc pv
 
@@ -102,6 +99,9 @@ flash() {
 					info "Converting sparse userdata.img to a raw image using simg2img..."
 					simg2img "${IMAGE}" userdata-raw.img
 				fi
+
+				info "Formatting ${partition}"
+				fastboot format "${partition}"
 
 				info "Flashing ${IMAGE} via telnet"
 				fastboot -s "${DEVICE}" reboot
