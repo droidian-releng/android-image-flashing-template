@@ -129,6 +129,8 @@ flash() {
 				else
 					error "Failed to flash ${IMAGE} via telnet"
 				fi
+			else
+				fastboot -s ${DEVICE} flash ${partition} ${IMAGE}
 			fi
 		else
 			fastboot -s ${DEVICE} flash ${partition} ${IMAGE}
