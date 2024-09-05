@@ -62,6 +62,18 @@ check_device() {
 	return 1
 }
 
+prompt_for_device() {
+	for device in $(fastboot devices | awk '{ print $1 }'); do
+		product=$(fastboot -s ${device} getvar product 2>&1 | grep "product:" | awk '{ print tolower($2) }')
+
+		read -p "Found device ${product}. Would you like to flash it? [y/N] " ANSWER
+		if [ "$(echo ${ANSWER} | awk '{ print tolower($1) }')" == "y" ]; then
+			echo "${device}"
+			return 0
+		fi
+	done
+}
+
 check_deps() {
 	has_deps=true
 	for cmd in "${@}"; do
@@ -148,16 +160,20 @@ flash_if_exists() {
 
 check_deps fastboot
 
-for try in 1 2 3 4 5; do
-	info "Waiting for a suitable device"
-	DEVICE=$(check_device) || true
+if [ -n "${EXTRA_INFO_DEVICE_IDS}" ]; then
+	for try in 1 2 3 4 5; do
+		info "Waiting for a suitable device"
+		DEVICE=$(check_device) || true
 
-	if [ -z "${DEVICE}" ]; then
-		sleep 10
-	else
-		break
-	fi
-done
+		if [ -z "${DEVICE}" ]; then
+			sleep 10
+		else
+			break
+		fi
+	done
+else
+	DEVICE="$(prompt_for_device)"
+fi
 
 [ -z "${DEVICE}" ] && error "No supported device found"
 
