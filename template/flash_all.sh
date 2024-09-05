@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Flasher script for Droidian images
-# Copyright (C) 2022 Eugenio "g7" Paolantonio <me@medesimo.eu>
+# Copyright (C) 2022-2024 Eugenio "g7" Paolantonio <me@medesimo.eu>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -163,22 +163,22 @@ done
 
 if [ "${DEVICE_IS_AB}" == "yes" ]; then
 	if [ "${DEVICE_HAS_CAPITAL_NAME}" == "yes" ]; then
-		flash ${DEVICE} data/boot.img BOOT_a BOOT_b
+		flash_if_exists ${DEVICE} data/boot.img BOOT_a BOOT_b
 		flash_if_exists ${DEVICE} data/dtbo.img DTBO_a DTBO_b
 		flash_if_exists ${DEVICE} data/vbmeta.img VBMETA_a VBMETA_b
 	else
-		flash ${DEVICE} data/boot.img boot_a boot_b
+		flash_if_exists ${DEVICE} data/boot.img boot_a boot_b
 		flash_if_exists ${DEVICE} data/dtbo.img dtbo_a dtbo_b
 		flash_if_exists ${DEVICE} data/vbmeta.img vbmeta_a vbmeta_b
 	fi
 else
 	# Both on AONLY and LEGACY
 	if [ "${DEVICE_HAS_CAPITAL_NAME}" == "yes" ]; then
-		flash ${DEVICE} data/boot.img BOOT
+		flash_if_exists ${DEVICE} data/boot.img BOOT
 		flash_if_exists ${DEVICE} data/dtbo.img DTBO
 		flash_if_exists ${DEVICE} data/vbmeta.img VBMETA
 	else
-		flash ${DEVICE} data/boot.img boot
+		flash_if_exists ${DEVICE} data/boot.img boot
 		flash_if_exists ${DEVICE} data/dtbo.img dtbo
 		flash_if_exists ${DEVICE} data/vbmeta.img vbmeta
 	fi
