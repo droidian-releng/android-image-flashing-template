@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Flasher script for Droidian images
 # Copyright (C) 2022-2024 Eugenio "g7" Paolantonio <me@medesimo.eu>
