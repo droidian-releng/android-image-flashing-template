@@ -182,10 +182,12 @@ if [ "${DEVICE_IS_AB}" == "yes" ]; then
 		flash_if_exists ${DEVICE} data/boot.img BOOT_a BOOT_b
 		flash_if_exists ${DEVICE} data/dtbo.img DTBO_a DTBO_b
 		flash_if_exists ${DEVICE} data/vbmeta.img VBMETA_a VBMETA_b
+		flash_if_exists ${DEVICE} data/vendor_boot.img VENDOR_BOOT_a VENDOR_BOOT_b
 	else
 		flash_if_exists ${DEVICE} data/boot.img boot_a boot_b
 		flash_if_exists ${DEVICE} data/dtbo.img dtbo_a dtbo_b
 		flash_if_exists ${DEVICE} data/vbmeta.img vbmeta_a vbmeta_b
+		flash_if_exists ${DEVICE} data/vendor_boot.img vendor_boot_a vendor_boot_b
 	fi
 else
 	# Both on AONLY and LEGACY
@@ -193,10 +195,12 @@ else
 		flash_if_exists ${DEVICE} data/boot.img BOOT
 		flash_if_exists ${DEVICE} data/dtbo.img DTBO
 		flash_if_exists ${DEVICE} data/vbmeta.img VBMETA
+		flash_if_exists ${DEVICE} data/vendor_boot.img VENDOR_BOOT
 	else
 		flash_if_exists ${DEVICE} data/boot.img boot
 		flash_if_exists ${DEVICE} data/dtbo.img dtbo
 		flash_if_exists ${DEVICE} data/vbmeta.img vbmeta
+		flash_if_exists ${DEVICE} data/vendor_boot.img vendor_boot
 	fi
 fi
 
